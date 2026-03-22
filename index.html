@@ -166,8 +166,74 @@ nav .container {
   transform: translateY(-1px);
 }
 
+/* Hamburger button (mobile only) */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 110;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.nav-hamburger span + span { margin-top: 6px; }
+
+.nav-hamburger.open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.nav-hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-hamburger.open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
 @media (max-width: 640px) {
-  .nav-links { display: none; }
+  .nav-hamburger { display: block; }
+
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(11, 31, 20, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    z-index: 105;
+    padding: 80px 24px 40px;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .nav-links .nav-cta {
+    padding: 14px 36px;
+    font-size: 1.1rem;
+  }
 }
 
 /* ── Hero ─────────────────────────────────────────── */
@@ -1109,13 +1175,16 @@ footer {
       <div class="nav-logo-icon"><img src="icon.svg" alt="Swipo icon"></div>
       Swipo<span>.</span>
     </a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="nav-links">
       <li><a href="#how-it-works">How it works</a></li>
       <li><a href="#features">Features</a></li>
       <li><a href="#privacy">Privacy</a></li>
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="https://apps.apple.com/app/swipo" class="nav-cta">Download</a></li>
     </ul>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
@@ -1398,18 +1467,36 @@ footer {
         <div class="footer-tagline">Made with care for your photo gallery.</div>
       </div>
       <ul class="footer-links">
-        <li><a href="/privacy">Privacy Policy</a></li>
-        <li><a href="/terms">Terms of Use</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms of Use</a></li>
         <li><a href="mailto:hello@swipo.app">Contact</a></li>
       </ul>
     </div>
     <div class="footer-bottom">
-      &copy; 2025 Swipo. All rights reserved. Apple and the Apple logo are trademarks of Apple Inc.
+      &copy; 2026 Swipo. All rights reserved. Apple and the Apple logo are trademarks of Apple Inc.
     </div>
   </div>
 </footer>
 
 <script>
+// ── Mobile hamburger menu ────────────────────────
+(function() {
+  var btn = document.getElementById('nav-hamburger');
+  var links = document.getElementById('nav-links');
+  if (!btn || !links) return;
+  btn.addEventListener('click', function() {
+    btn.classList.toggle('open');
+    links.classList.toggle('open');
+  });
+  // Close menu when a link is tapped
+  links.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', function() {
+      btn.classList.remove('open');
+      links.classList.remove('open');
+    });
+  });
+})();
+
 // ── Scroll-triggered fade-in animations ──────────
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {

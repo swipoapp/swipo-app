@@ -1,69 +1,79 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <!-- Background gradient: deep forest to emerald -->
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1B4332"/>
+      <stop offset="0%" stop-color="#122E1F"/>
       <stop offset="100%" stop-color="#2D6A4F"/>
     </linearGradient>
-
-    <!-- Swipe trail gradient -->
-    <linearGradient id="trail" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#95D5B2"/>
-      <stop offset="100%" stop-color="#D8F3DC"/>
-    </linearGradient>
-
-    <!-- iOS clip -->
-    <clipPath id="clip">
-      <rect width="1024" height="1024" rx="230" ry="230"/>
-    </clipPath>
+    <radialGradient id="gl" cx="50%" cy="46%" r="52%">
+      <stop offset="0%" stop-color="#52B788" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#122E1F" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="ios"><rect width="1024" height="1024" rx="230" ry="230"/></clipPath>
+    <clipPath id="t1"><rect x="290" y="253" width="210" height="210" rx="26"/></clipPath>
+    <clipPath id="t2"><rect x="524" y="253" width="210" height="210" rx="26"/></clipPath>
+    <clipPath id="t3"><rect x="290" y="487" width="210" height="210" rx="26"/></clipPath>
+    <clipPath id="t4"><rect x="-105" y="-105" width="210" height="210" rx="26"/></clipPath>
+    <filter id="lift">
+      <feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
   </defs>
 
-  <g clip-path="url(#clip)">
-    <!-- Solid background -->
+  <g clip-path="url(#ios)">
     <rect width="1024" height="1024" fill="url(#bg)"/>
+    <rect width="1024" height="1024" fill="url(#gl)"/>
 
-    <!-- Subtle radial glow from center -->
-    <radialGradient id="glow" cx="50%" cy="45%" r="50%">
-      <stop offset="0%" stop-color="#40916C" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#1B4332" stop-opacity="0"/>
-    </radialGradient>
-    <rect width="1024" height="1024" fill="url(#glow)"/>
+    <!-- Top-Left tile — landscape -->
+    <rect x="290" y="253" width="210" height="210" rx="26" fill="white" opacity="0.95"/>
+    <g clip-path="url(#t1)">
+      <rect x="290" y="253" width="210" height="142" fill="#D5E8D7"/>
+      <polygon points="290,395 345,320 390,350 430,300 500,395" fill="#6B9E72" opacity="0.45"/>
+      <circle cx="452" cy="298" r="20" fill="#F5EACD" opacity="0.65"/>
+    </g>
 
-    <!-- Photo card (slightly tilted, clean white) -->
-    <g transform="translate(512, 470) rotate(-6)">
-      <rect x="-170" y="-220" width="340" height="440" rx="28" fill="white" opacity="0.15"/>
+    <!-- Top-Right tile — sky/portrait -->
+    <rect x="524" y="253" width="210" height="210" rx="26" fill="white" opacity="0.95"/>
+    <g clip-path="url(#t2)">
+      <rect x="524" y="253" width="210" height="142" fill="#CEDAE8"/>
+      <circle cx="629" cy="330" r="34" fill="#DCCFB8" opacity="0.45"/>
     </g>
-    <g transform="translate(512, 470) rotate(3)">
-      <rect x="-170" y="-220" width="340" height="440" rx="28" fill="white" opacity="0.25"/>
+
+    <!-- Bottom-Left tile — warm/urban -->
+    <rect x="290" y="487" width="210" height="210" rx="26" fill="white" opacity="0.95"/>
+    <g clip-path="url(#t3)">
+      <rect x="290" y="487" width="210" height="142" fill="#E8DDD2"/>
+      <rect x="318" y="525" width="48" height="62" rx="5" fill="#C8BAA6" opacity="0.4"/>
+      <rect x="380" y="512" width="42" height="75" rx="5" fill="#BAC2A6" opacity="0.35"/>
     </g>
-    <g transform="translate(512, 470)">
-      <rect x="-170" y="-220" width="340" height="440" rx="28" fill="white"/>
-      <!-- Simple mountain landscape inside card -->
-      <g opacity="0.12">
-        <polygon points="-170,220 -60,20 30,120 80,40 170,220" fill="#1B4332"/>
-        <circle cx="100" cy="-100" r="30" fill="#1B4332"/>
+
+    <!-- Bottom-Right tile — pink, rotated (being sorted) -->
+    <g transform="translate(629, 592) rotate(5)" filter="url(#lift)">
+      <rect x="-105" y="-105" width="210" height="210" rx="26" fill="white" opacity="0.97"/>
+      <g clip-path="url(#t4)">
+        <rect x="-105" y="-105" width="210" height="142" fill="#E8D2DC"/>
+        <circle cx="0" cy="-38" r="30" fill="#D4B8C4" opacity="0.4"/>
       </g>
     </g>
 
-    <!-- Swipe gesture trail — a smooth curved arrow going up-right -->
-    <g transform="translate(512, 470)">
-      <!-- The swoosh path -->
-      <path d="M -20,180 C 40,140 100,40 140,-60 C 155,-100 165,-130 180,-140"
-            fill="none"
-            stroke="url(#trail)"
-            stroke-width="18"
-            stroke-linecap="round"
-            opacity="0.9"/>
-      <!-- Arrowhead -->
-      <polygon points="195,-155 170,-120 155,-158"
-               fill="#D8F3DC"
-               opacity="0.9"/>
+    <!-- Zone markers at grid corners -->
+
+    <!-- Delete (top-left) — red -->
+    <circle cx="290" cy="253" r="30" fill="#D62828"/>
+    <g transform="translate(290, 253)">
+      <rect x="-11" y="-6" width="22" height="3.5" rx="1.5" fill="white" opacity="0.9"/>
+      <rect x="-8" y="0" width="16" height="13" rx="2.5" fill="none" stroke="white" stroke-width="2.2" opacity="0.9"/>
+      <line x1="0" y1="-12" x2="0" y2="-6" stroke="white" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/>
     </g>
 
-    <!-- Small leaf accent in bottom-left corner -->
-    <g transform="translate(200, 820) rotate(-25) scale(0.8)">
-      <path d="M0,0 C 15,-40 50,-60 80,-50 C 60,-30 40,-10 20,5 C 50,-20 70,-45 75,-48 C 45,-35 15,-5 0,0Z"
-            fill="#95D5B2" opacity="0.5"/>
-    </g>
+    <!-- Keep (top-right) — green -->
+    <circle cx="734" cy="253" r="30" fill="#2D6A4F"/>
+    <polyline points="722,253 730,263 748,245" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" transform="translate(0,0)"/>
+
+    <!-- Not Sure (bottom-left) — gray -->
+    <circle cx="290" cy="697" r="30" fill="#8D99AE"/>
+    <text x="290" y="707" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="white" opacity="0.9">?</text>
+
+    <!-- Favorite (bottom-right) — gold -->
+    <circle cx="734" cy="697" r="30" fill="#E09F3E"/>
+    <path d="M734,689 C730,683 722,685 722,691 C722,697 734,707 734,707 C734,707 746,697 746,691 C746,685 738,683 734,689Z" fill="white" opacity="0.9"/>
   </g>
 </svg>
