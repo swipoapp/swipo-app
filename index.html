@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Swipo : Photo Cleaner — Swipe. Sort. Free up space.</title>
 <meta name="description" content="Swipo is the fastest way to clean your photo library. Swipe photos to corners to sort them — delete, keep, or favorite. On-device AI, no subscription, 100% private.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📸</text></svg>">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <style>
 /* ── Reset & Base ─────────────────────────────────── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,10 +21,10 @@
   --text-muted: #6B7B73;
   --text-light: #A3B8AD;
   --white: #FFFFFF;
-  --delete-red: #E63946;
+  --delete-red: #D62828;
   --keep-green: #2D6A4F;
-  --unsure-amber: #E9A820;
-  --fav-pink: #E056A0;
+  --unsure-gray: #8D99AE;
+  --fav-gold: #E09F3E;
   --radius: 16px;
   --radius-lg: 24px;
   --shadow: 0 4px 24px rgba(0,0,0,0.12);
@@ -106,11 +106,29 @@ nav .container {
 }
 
 .nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--white);
   text-decoration: none;
   letter-spacing: -0.03em;
+}
+
+.nav-logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.nav-logo-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .nav-logo span {
@@ -399,9 +417,9 @@ nav .container {
 }
 
 .zone-tl { top: 2px; left: 4px; color: var(--delete-red); }
-.zone-tr { top: 2px; right: 4px; color: var(--fav-pink); }
-.zone-bl { bottom: 2px; left: 4px; color: var(--unsure-amber); }
-.zone-br { bottom: 2px; right: 4px; color: var(--keep-green); }
+.zone-tr { top: 2px; right: 4px; color: var(--keep-green); }
+.zone-bl { bottom: 2px; left: 4px; color: var(--unsure-gray); }
+.zone-br { bottom: 2px; right: 4px; color: var(--fav-gold); }
 
 .swipe-card-stack {
   position: absolute;
@@ -544,10 +562,10 @@ nav .container {
   font-size: 0.6rem;
 }
 
-.pzd-tl { top: 0; left: 0; background: rgba(230,57,70,0.12); color: var(--delete-red); }
-.pzd-tr { top: 0; right: 0; background: rgba(224,86,160,0.12); color: var(--fav-pink); }
-.pzd-bl { bottom: 0; left: 0; background: rgba(233,168,32,0.12); color: var(--unsure-amber); }
-.pzd-br { bottom: 0; right: 0; background: rgba(45,106,79,0.12); color: var(--keep-green); }
+.pzd-tl { top: 0; left: 0; background: rgba(214,40,40,0.12); color: var(--delete-red); }
+.pzd-tr { top: 0; right: 0; background: rgba(45,106,79,0.12); color: var(--keep-green); }
+.pzd-bl { bottom: 0; left: 0; background: rgba(141,153,174,0.12); color: var(--unsure-gray); }
+.pzd-br { bottom: 0; right: 0; background: rgba(224,159,62,0.12); color: var(--fav-gold); }
 
 @media (max-width: 768px) {
   .hero .container {
@@ -1014,10 +1032,27 @@ footer {
 }
 
 .footer-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 1.1rem;
   font-weight: 800;
   color: var(--white);
   letter-spacing: -0.03em;
+}
+
+.footer-logo-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.footer-logo-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .footer-logo span { color: var(--emerald-light); }
@@ -1070,7 +1105,10 @@ footer {
 <!-- ── Navigation ─────────────────────────────────── -->
 <nav id="navbar">
   <div class="container">
-    <a href="#" class="nav-logo">Swipo<span>.</span></a>
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon"><img src="icon.svg" alt="Swipo icon"></div>
+      Swipo<span>.</span>
+    </a>
     <ul class="nav-links">
       <li><a href="#how-it-works">How it works</a></li>
       <li><a href="#features">Features</a></li>
@@ -1126,9 +1164,9 @@ footer {
           <div class="phone-counter">42 of 1,247 photos</div>
           <div class="swipe-area">
             <span class="zone-label zone-tl">Delete</span>
-            <span class="zone-label zone-tr">Fav</span>
-            <span class="zone-label zone-bl">Skip</span>
-            <span class="zone-label zone-br">Keep</span>
+            <span class="zone-label zone-tr">Keep</span>
+            <span class="zone-label zone-bl">Not Sure</span>
+            <span class="zone-label zone-br">Favorite</span>
             <div class="swipe-card-stack">
               <div class="swipe-card card-3">
                 <div class="swipe-card-bg">
@@ -1353,7 +1391,10 @@ footer {
   <div class="container">
     <div class="footer-content">
       <div class="footer-brand">
-        <div class="footer-logo">Swipo<span>.</span></div>
+        <div class="footer-logo">
+          <div class="footer-logo-icon"><img src="icon.svg" alt="Swipo icon"></div>
+          Swipo<span>.</span>
+        </div>
         <div class="footer-tagline">Made with care for your photo gallery.</div>
       </div>
       <ul class="footer-links">
@@ -1415,10 +1456,10 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   if (!card || !stamp) return;
 
   const zones = [
-    { name: 'DELETE',   color: '#E63946', x: -28, y: -38, rot: -12, label: '.zone-tl' },
-    { name: 'KEEP',     color: '#2D6A4F', x:  28, y:  38, rot:  10, label: '.zone-br' },
-    { name: 'SKIP',     color: '#E9A820', x: -28, y:  38, rot:  -8, label: '.zone-bl' },
-    { name: 'FAVORITE', color: '#E056A0', x:  28, y: -38, rot:  12, label: '.zone-tr' },
+    { name: 'DELETE',   color: '#D62828', x: -28, y: -38, rot: -12, label: '.zone-tl' },
+    { name: 'KEEP',     color: '#2D6A4F', x:  28, y: -38, rot:  12, label: '.zone-tr' },
+    { name: 'NOT SURE', color: '#8D99AE', x: -28, y:  38, rot:  -8, label: '.zone-bl' },
+    { name: 'FAVORITE', color: '#E09F3E', x:  28, y:  38, rot:  10, label: '.zone-br' },
   ];
 
   let current = 0;

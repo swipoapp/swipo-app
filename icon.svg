@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background gradient: deep forest to emerald -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B4332"/>
+      <stop offset="100%" stop-color="#2D6A4F"/>
+    </linearGradient>
+
+    <!-- Swipe trail gradient -->
+    <linearGradient id="trail" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#95D5B2"/>
+      <stop offset="100%" stop-color="#D8F3DC"/>
+    </linearGradient>
+
+    <!-- iOS clip -->
+    <clipPath id="clip">
+      <rect width="1024" height="1024" rx="230" ry="230"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#clip)">
+    <!-- Solid background -->
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+
+    <!-- Subtle radial glow from center -->
+    <radialGradient id="glow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#40916C" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#1B4332" stop-opacity="0"/>
+    </radialGradient>
+    <rect width="1024" height="1024" fill="url(#glow)"/>
+
+    <!-- Photo card (slightly tilted, clean white) -->
+    <g transform="translate(512, 470) rotate(-6)">
+      <rect x="-170" y="-220" width="340" height="440" rx="28" fill="white" opacity="0.15"/>
+    </g>
+    <g transform="translate(512, 470) rotate(3)">
+      <rect x="-170" y="-220" width="340" height="440" rx="28" fill="white" opacity="0.25"/>
+    </g>
+    <g transform="translate(512, 470)">
+      <rect x="-170" y="-220" width="340" height="440" rx="28" fill="white"/>
+      <!-- Simple mountain landscape inside card -->
+      <g opacity="0.12">
+        <polygon points="-170,220 -60,20 30,120 80,40 170,220" fill="#1B4332"/>
+        <circle cx="100" cy="-100" r="30" fill="#1B4332"/>
+      </g>
+    </g>
+
+    <!-- Swipe gesture trail — a smooth curved arrow going up-right -->
+    <g transform="translate(512, 470)">
+      <!-- The swoosh path -->
+      <path d="M -20,180 C 40,140 100,40 140,-60 C 155,-100 165,-130 180,-140"
+            fill="none"
+            stroke="url(#trail)"
+            stroke-width="18"
+            stroke-linecap="round"
+            opacity="0.9"/>
+      <!-- Arrowhead -->
+      <polygon points="195,-155 170,-120 155,-158"
+               fill="#D8F3DC"
+               opacity="0.9"/>
+    </g>
+
+    <!-- Small leaf accent in bottom-left corner -->
+    <g transform="translate(200, 820) rotate(-25) scale(0.8)">
+      <path d="M0,0 C 15,-40 50,-60 80,-50 C 60,-30 40,-10 20,5 C 50,-20 70,-45 75,-48 C 45,-35 15,-5 0,0Z"
+            fill="#95D5B2" opacity="0.5"/>
+    </g>
+  </g>
+</svg>
