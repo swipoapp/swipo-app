@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swipo : Photo Cleaner — Swipe. Sort. Free up space.</title>
+<meta name="description" content="Swipo is the fastest way to clean your photo library. Swipe photos to corners to sort them — delete, keep, or favorite. On-device AI, no subscription, 100% private.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📸</text></svg>">
+<style>
+/* ── Reset & Base ─────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --forest: #2D6A4F;
+  --emerald: #40916C;
+  --emerald-light: #52B788;
+  --cream: #FFF8F0;
+  --dark: #1B4332;
+  --dark-bg: #0B1F14;
+  --dark-card: #132E1C;
+  --text-muted: #6B7B73;
+  --text-light: #A3B8AD;
+  --white: #FFFFFF;
+  --delete-red: #E63946;
+  --keep-green: #2D6A4F;
+  --unsure-amber: #E9A820;
+  --fav-pink: #E056A0;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.12);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.2);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Rounded', system-ui, sans-serif;
+  color: var(--dark);
+  background: var(--cream);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Typography ───────────────────────────────────── */
+h1, h2, h3, h4 { font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); }
+h2 { font-size: clamp(1.8rem, 4vw, 3rem); }
+h3 { font-size: clamp(1.1rem, 2vw, 1.35rem); }
+p { font-size: clamp(0.95rem, 1.5vw, 1.1rem); }
+
+/* ── Layout ───────────────────────────────────────── */
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+section {
+  padding: 100px 0;
+}
+
+/* ── Animations ───────────────────────────────────── */
+.fade-in {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-in-delay-1 { transition-delay: 0.1s; }
+.fade-in-delay-2 { transition-delay: 0.2s; }
+.fade-in-delay-3 { transition-delay: 0.3s; }
+.fade-in-delay-4 { transition-delay: 0.4s; }
+.fade-in-delay-5 { transition-delay: 0.5s; }
+
+/* ── Navigation ───────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px 0;
+  transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+}
+
+nav.scrolled {
+  background: rgba(11, 31, 20, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06);
+}
+
+nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--white);
+  text-decoration: none;
+  letter-spacing: -0.03em;
+}
+
+.nav-logo span {
+  color: var(--emerald-light);
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: var(--white);
+}
+
+.nav-cta {
+  background: var(--emerald);
+  color: var(--white) !important;
+  padding: 8px 20px;
+  border-radius: 100px;
+  transition: background 0.2s, transform 0.2s !important;
+}
+
+.nav-cta:hover {
+  background: var(--emerald-light) !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+}
+
+/* ── Hero ─────────────────────────────────────────── */
+.hero {
+  background: var(--dark-bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 120px 0 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(64,145,108,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -15%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(45,106,79,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero .container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(64,145,108,0.15);
+  border: 1px solid rgba(64,145,108,0.25);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--emerald-light);
+  margin-bottom: 24px;
+  letter-spacing: 0.02em;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--emerald-light);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero h1 {
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--emerald-light), #74C69D, var(--emerald));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  color: var(--text-light);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  margin-bottom: 36px;
+  max-width: 460px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-appstore {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  color: var(--dark-bg);
+  text-decoration: none;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-appstore:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(255,255,255,0.15);
+}
+
+.btn-appstore svg { width: 24px; height: 24px; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--text-light);
+  text-decoration: none;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: var(--white);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.hero-stat {
+  text-align: left;
+}
+
+.hero-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.02em;
+}
+
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Phone Mockup ─────────────────────────────────── */
+.hero-visual {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-mockup {
+  width: 280px;
+  height: 570px;
+  background: #111;
+  border-radius: 44px;
+  border: 3px solid #333;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 20px 60px rgba(0,0,0,0.5),
+    0 0 120px rgba(64,145,108,0.08);
+}
+
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 28px;
+  background: #111;
+  border-radius: 0 0 20px 20px;
+  z-index: 10;
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #0F1A14 0%, #162B1E 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px 24px;
+  position: relative;
+}
+
+.phone-header {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.phone-counter {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+/* ── Swipe Card ───────────────────────────────────── */
+.swipe-area {
+  position: relative;
+  width: 200px;
+  height: 270px;
+  margin: 0 auto;
+}
+
+.zone-label {
+  position: absolute;
+  font-size: 0.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.zone-tl { top: 2px; left: 4px; color: var(--delete-red); }
+.zone-tr { top: 2px; right: 4px; color: var(--fav-pink); }
+.zone-bl { bottom: 2px; left: 4px; color: var(--unsure-amber); }
+.zone-br { bottom: 2px; right: 4px; color: var(--keep-green); }
+
+.swipe-card-stack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 220px;
+}
+
+.swipe-card {
+  position: absolute;
+  width: 160px;
+  height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.swipe-card-bg {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.card-3 {
+  transform: scale(0.9) translateY(10px);
+  opacity: 0.3;
+}
+
+.card-3 .swipe-card-bg {
+  background: linear-gradient(145deg, #3A5A40, #588157);
+}
+
+.card-2 {
+  transform: scale(0.95) translateY(5px);
+  opacity: 0.6;
+}
+
+.card-2 .swipe-card-bg {
+  background: linear-gradient(145deg, #5E548E, #9F86C0);
+}
+
+.card-1 {
+  animation: float-card 4s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.card-1 .swipe-card-bg {
+  background: linear-gradient(145deg, #E07A5F, #F2CC8F);
+}
+
+.card-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.card-photo-placeholder svg {
+  width: 40px;
+  height: 40px;
+  opacity: 0.5;
+}
+
+.card-photo-label {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 600;
+}
+
+@keyframes float-card {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  25% { transform: rotate(1deg) translateY(-4px) translateX(6px); }
+  50% { transform: rotate(-1deg) translateY(-2px); }
+  75% { transform: rotate(2deg) translateY(-4px) translateX(-6px); }
+}
+
+.phone-bottom-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phone-pill {
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px;
+  padding: 4px 10px;
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Corner zone indicators on phone */
+.phone-zones {
+  position: absolute;
+  inset: 40px 8px 50px;
+  pointer-events: none;
+}
+
+.phone-zone-dot {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+}
+
+.pzd-tl { top: 0; left: 0; background: rgba(230,57,70,0.12); color: var(--delete-red); }
+.pzd-tr { top: 0; right: 0; background: rgba(224,86,160,0.12); color: var(--fav-pink); }
+.pzd-bl { bottom: 0; left: 0; background: rgba(233,168,32,0.12); color: var(--unsure-amber); }
+.pzd-br { bottom: 0; right: 0; background: rgba(45,106,79,0.12); color: var(--keep-green); }
+
+@media (max-width: 768px) {
+  .hero .container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .hero-subtitle { margin-left: auto; margin-right: auto; }
+  .hero-buttons { justify-content: center; }
+  .hero-stats { justify-content: center; }
+  .hero-visual { margin-top: 20px; }
+  .phone-mockup { width: 240px; height: 490px; }
+  .swipe-area { width: 170px; height: 230px; }
+  .swipe-card, .swipe-card-stack { width: 135px; height: 185px; }
+}
+
+/* ── Section Titles ───────────────────────────────── */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--emerald);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  margin-bottom: 16px;
+  color: var(--dark);
+}
+
+.section-desc {
+  color: var(--text-muted);
+  max-width: 560px;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.7;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.section-header .section-desc {
+  margin: 0 auto;
+}
+
+/* ── How It Works ─────────────────────────────────── */
+.how-it-works {
+  background: var(--cream);
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.step-card {
+  text-align: center;
+  padding: 40px 28px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(45,106,79,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.step-icon {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, rgba(64,145,108,0.1), rgba(82,183,136,0.08));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 1.8rem;
+}
+
+.step-number {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--emerald);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+}
+
+.step-card h3 {
+  margin-bottom: 10px;
+  color: var(--dark);
+}
+
+.step-card p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .steps-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* ── Features ─────────────────────────────────────── */
+.features {
+  background: var(--white);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  padding: 32px 28px;
+  background: var(--cream);
+  border-radius: var(--radius);
+  border: 1px solid rgba(45,106,79,0.06);
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(45,106,79,0.08);
+  border-color: rgba(64,145,108,0.15);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+}
+
+.fi-purple { background: rgba(94,84,142,0.12); }
+.fi-indigo { background: rgba(67,97,238,0.1); }
+.fi-teal { background: rgba(45,106,79,0.1); }
+.fi-orange { background: rgba(224,122,95,0.12); }
+.fi-blue { background: rgba(59,130,246,0.1); }
+.fi-green { background: rgba(52,183,136,0.1); }
+
+.feature-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Privacy ──────────────────────────────────────── */
+.privacy-section {
+  background: var(--dark-bg);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.privacy-section::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(64,145,108,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.privacy-content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.privacy-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(64,145,108,0.15);
+  border: 1px solid rgba(64,145,108,0.2);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 32px;
+}
+
+.privacy-content h2 {
+  color: var(--white);
+  margin-bottom: 20px;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.privacy-content p {
+  color: var(--text-light);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.8;
+  margin-bottom: 40px;
+}
+
+.privacy-badges {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.privacy-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.privacy-badge-icon {
+  font-size: 1rem;
+}
+
+/* ── Pricing ──────────────────────────────────────── */
+.pricing {
+  background: var(--cream);
+}
+
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.pricing-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 40px 36px;
+  border: 1px solid rgba(45,106,79,0.08);
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.pricing-card.featured {
+  border: 2px solid var(--emerald);
+  box-shadow: 0 8px 40px rgba(45,106,79,0.12);
+}
+
+.pricing-card.featured:hover {
+  box-shadow: 0 12px 48px rgba(45,106,79,0.18);
+}
+
+.pricing-popular {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--emerald);
+  color: var(--white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 16px;
+  border-radius: 100px;
+}
+
+.pricing-tier {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--emerald);
+  margin-bottom: 8px;
+}
+
+.pricing-price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 4px;
+  letter-spacing: -0.03em;
+}
+
+.pricing-price-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.pricing-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.pricing-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.92rem;
+  color: var(--dark);
+  line-height: 1.5;
+}
+
+.pricing-features li::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.pricing-features .included::before {
+  background: rgba(64,145,108,0.12);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2340916C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.pricing-features .excluded {
+  color: var(--text-muted);
+}
+
+.pricing-features .excluded::before {
+  background: rgba(0,0,0,0.04);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.pricing-btn {
+  display: block;
+  text-align: center;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pricing-btn:hover {
+  transform: translateY(-2px);
+}
+
+.pricing-btn-outline {
+  border: 2px solid rgba(45,106,79,0.2);
+  color: var(--forest);
+}
+
+.pricing-btn-outline:hover {
+  border-color: var(--emerald);
+  box-shadow: 0 4px 16px rgba(45,106,79,0.08);
+}
+
+.pricing-btn-primary {
+  background: var(--emerald);
+  color: var(--white);
+}
+
+.pricing-btn-primary:hover {
+  box-shadow: 0 8px 24px rgba(64,145,108,0.3);
+}
+
+@media (max-width: 640px) {
+  .pricing-cards {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+}
+
+/* ── CTA / Download ───────────────────────────────── */
+.cta-section {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--dark) 100%);
+  text-align: center;
+  padding: 80px 0;
+}
+
+.cta-section h2 {
+  color: var(--white);
+  margin-bottom: 12px;
+}
+
+.cta-section p {
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+}
+
+.cta-section .btn-appstore {
+  margin: 0 auto;
+}
+
+/* ── Footer ───────────────────────────────────────── */
+footer {
+  background: var(--dark-bg);
+  padding: 48px 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-logo {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.03em;
+}
+
+.footer-logo span { color: var(--emerald-light); }
+
+.footer-tagline {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: var(--text-light);
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-links {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────── -->
+<nav id="navbar">
+  <div class="container">
+    <a href="#" class="nav-logo">Swipo<span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="https://apps.apple.com/app/swipo" class="nav-cta">Download</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────── -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-text">
+      <div class="hero-badge fade-in">Available on iOS 17+</div>
+      <h1 class="fade-in fade-in-delay-1">
+        <span class="gradient">Swipe. Sort.</span><br>Free up space.
+      </h1>
+      <p class="hero-subtitle fade-in fade-in-delay-2">
+        The fastest way to clean your photo library. Swipe to any corner to sort — delete, keep, skip, or favorite. Done in minutes.
+      </p>
+      <div class="hero-buttons fade-in fade-in-delay-3">
+        <a href="https://apps.apple.com/app/swipo" class="btn-appstore">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download for iOS
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          Learn more
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </a>
+      </div>
+      <div class="hero-stats fade-in fade-in-delay-4">
+        <div class="hero-stat">
+          <div class="hero-stat-value">4 zones</div>
+          <div class="hero-stat-label">Swipe to sort</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">100%</div>
+          <div class="hero-stat-label">Private &amp; offline</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">$3.99</div>
+          <div class="hero-stat-label">One-time, no sub</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual fade-in fade-in-delay-2">
+      <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header">Camera Roll</div>
+          <div class="phone-counter">42 of 1,247 photos</div>
+          <div class="swipe-area">
+            <span class="zone-label zone-tl">Delete</span>
+            <span class="zone-label zone-tr">Fav</span>
+            <span class="zone-label zone-bl">Skip</span>
+            <span class="zone-label zone-br">Keep</span>
+            <div class="swipe-card-stack">
+              <div class="swipe-card card-3">
+                <div class="swipe-card-bg">
+                  <div class="card-photo-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  </div>
+                </div>
+              </div>
+              <div class="swipe-card card-2">
+                <div class="swipe-card-bg">
+                  <div class="card-photo-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                  </div>
+                </div>
+              </div>
+              <div class="swipe-card card-1">
+                <div class="swipe-card-bg">
+                  <div class="card-photo-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                    <span class="card-photo-label">IMG_4892.HEIC</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-bottom-bar">
+            <span class="phone-pill">Undo</span>
+            <span class="phone-pill">42 sorted</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ────────────────────────────────── -->
+<section class="how-it-works" id="how-it-works">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">Three swipes to a clean gallery</h2>
+      <p class="section-desc">No complicated menus. No endless scrolling. Just swipe each photo to a corner and let Swipo handle the rest.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card fade-in fade-in-delay-1">
+        <div class="step-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </div>
+        <div class="step-number">Step 1</div>
+        <h3>Swipe to any corner</h3>
+        <p>Each corner means something different — delete, keep, skip, or favorite. It's intuitive from the first swipe.</p>
+      </div>
+      <div class="step-card fade-in fade-in-delay-2">
+        <div class="step-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="step-number">Step 2</div>
+        <h3>Review your decisions</h3>
+        <p>Before anything is deleted, review every choice. Change your mind? Just move photos between piles.</p>
+      </div>
+      <div class="step-card fade-in fade-in-delay-3">
+        <div class="step-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg>
+        </div>
+        <div class="step-number">Step 3</div>
+        <h3>Done. Space freed.</h3>
+        <p>Confirm and Swipo cleans up. Deleted photos go to Recently Deleted first — you have 30 days to recover them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ────────────────────────────────────── -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need, nothing you don't</h2>
+      <p class="section-desc">Powerful features that stay out of your way. Clean your library faster than you thought possible.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-in fade-in-delay-1">
+        <div class="feature-icon fi-purple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5E548E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20"/><path d="M17 2v20"/><path d="M2 12h20"/><path d="M2 7h5"/><path d="M2 17h5"/><path d="M17 7h5"/><path d="M17 17h5"/></svg>
+        </div>
+        <h3>Smart Decks</h3>
+        <p>On-device AI groups your photos by type — screenshots, selfies, food, landscapes — so you can clean one category at a time.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-2">
+        <div class="feature-icon fi-indigo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4361EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
+        </div>
+        <h3>Clean by Year</h3>
+        <p>Time travel through your gallery. Pick any year and start sorting — perfect for tackling that 2019 backlog.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-3">
+        <div class="feature-icon fi-teal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D6A4F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>Trip Cleaner</h3>
+        <p>Sort photos by location clusters. Went overboard on vacation snaps? Clean up trip by trip, keep the best ones.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-1">
+        <div class="feature-icon fi-orange">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E07A5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        </div>
+        <h3>Custom Filters</h3>
+        <p>Filter by date range, photo count, or media type. Build your own sorting sessions exactly how you want them.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-2">
+        <div class="feature-icon fi-blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+        </div>
+        <h3>30-Day Safety Net</h3>
+        <p>Nothing disappears instantly. All deleted photos go to Recently Deleted first, giving you 30 days to change your mind.</p>
+      </div>
+      <div class="feature-card fade-in fade-in-delay-3">
+        <div class="feature-icon fi-green">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34B788" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3>No Subscription</h3>
+        <p>Pay once, own forever. No monthly fees, no annual renewals, no "premium tier" upsells. $3.99 and it's yours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Privacy ─────────────────────────────────────── -->
+<section class="privacy-section" id="privacy">
+  <div class="container">
+    <div class="privacy-content fade-in">
+      <div class="privacy-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <h2>Your photos never leave your device.</h2>
+      <p>Swipo uses Apple's Vision framework for on-device machine learning. Your photos are analyzed locally — nothing is uploaded, no data is collected, no accounts are required. We couldn't see your photos even if we wanted to.</p>
+      <div class="privacy-badges">
+        <div class="privacy-badge">
+          <span class="privacy-badge-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>
+          No cloud uploads
+        </div>
+        <div class="privacy-badge">
+          <span class="privacy-badge-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
+          </span>
+          No account required
+        </div>
+        <div class="privacy-badge">
+          <span class="privacy-badge-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </span>
+          No tracking or analytics
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ─────────────────────────────────────── -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-header fade-in">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Simple, honest pricing</h2>
+      <p class="section-desc">Start free, upgrade when you want. No tricks, no subscriptions.</p>
+    </div>
+    <div class="pricing-cards">
+      <div class="pricing-card fade-in fade-in-delay-1">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-price">$0</div>
+        <div class="pricing-price-sub">Free forever</div>
+        <ul class="pricing-features">
+          <li class="included">100 photos per month</li>
+          <li class="included">4-corner swipe sorting</li>
+          <li class="included">Review before delete</li>
+          <li class="included">30-day safety net</li>
+          <li class="excluded">Smart Decks (AI sorting)</li>
+          <li class="excluded">Clean by Year</li>
+          <li class="excluded">Trip Cleaner</li>
+          <li class="excluded">Unlimited photos</li>
+        </ul>
+        <a href="https://apps.apple.com/app/swipo" class="pricing-btn pricing-btn-outline">Get Started</a>
+      </div>
+      <div class="pricing-card featured fade-in fade-in-delay-2">
+        <div class="pricing-popular">Best Value</div>
+        <div class="pricing-tier">Pro</div>
+        <div class="pricing-price">$3.99</div>
+        <div class="pricing-price-sub">One-time purchase, forever</div>
+        <ul class="pricing-features">
+          <li class="included">Unlimited photos</li>
+          <li class="included">4-corner swipe sorting</li>
+          <li class="included">Review before delete</li>
+          <li class="included">30-day safety net</li>
+          <li class="included">Smart Decks (AI sorting)</li>
+          <li class="included">Clean by Year</li>
+          <li class="included">Trip Cleaner</li>
+          <li class="included">Custom filters &amp; sessions</li>
+        </ul>
+        <a href="https://apps.apple.com/app/swipo" class="pricing-btn pricing-btn-primary">Get Swipo Pro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ─────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container fade-in">
+    <h2>Ready to clean up your photo library?</h2>
+    <p>Join thousands of people who've reclaimed their storage with Swipo.</p>
+    <a href="https://apps.apple.com/app/swipo" class="btn-appstore">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Download for iOS
+    </a>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">Swipo<span>.</span></div>
+        <div class="footer-tagline">Made with care for your photo gallery.</div>
+      </div>
+      <ul class="footer-links">
+        <li><a href="/privacy">Privacy Policy</a></li>
+        <li><a href="/terms">Terms of Use</a></li>
+        <li><a href="mailto:hello@swipo.app">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 Swipo. All rights reserved. Apple and the Apple logo are trademarks of Apple Inc.
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Scroll-triggered fade-in animations ──────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, {
+  threshold: 0.1,
+  rootMargin: '0px 0px -40px 0px'
+});
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// ── Navbar scroll effect ─────────────────────────
+const navbar = document.getElementById('navbar');
+let lastScroll = 0;
+
+window.addEventListener('scroll', () => {
+  const currentScroll = window.pageYOffset;
+  if (currentScroll > 60) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+  lastScroll = currentScroll;
+}, { passive: true });
+
+// ── Smooth scroll for anchor links ───────────────
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
