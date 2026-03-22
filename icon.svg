@@ -1,79 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#122E1F"/>
-      <stop offset="100%" stop-color="#2D6A4F"/>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#16A34A"/>
+      <stop offset="100%" stop-color="#22C55E"/>
     </linearGradient>
-    <radialGradient id="gl" cx="50%" cy="46%" r="52%">
-      <stop offset="0%" stop-color="#52B788" stop-opacity="0.12"/>
-      <stop offset="100%" stop-color="#122E1F" stop-opacity="0"/>
-    </radialGradient>
-    <clipPath id="ios"><rect width="1024" height="1024" rx="230" ry="230"/></clipPath>
-    <clipPath id="t1"><rect x="290" y="253" width="210" height="210" rx="26"/></clipPath>
-    <clipPath id="t2"><rect x="524" y="253" width="210" height="210" rx="26"/></clipPath>
-    <clipPath id="t3"><rect x="290" y="487" width="210" height="210" rx="26"/></clipPath>
-    <clipPath id="t4"><rect x="-105" y="-105" width="210" height="210" rx="26"/></clipPath>
-    <filter id="lift">
-      <feDropShadow dx="0" dy="5" stdDeviation="10" flood-color="#000" flood-opacity="0.3"/>
-    </filter>
+    <clipPath id="ios">
+      <rect width="1024" height="1024" rx="230" ry="230"/>
+    </clipPath>
   </defs>
 
   <g clip-path="url(#ios)">
-    <rect width="1024" height="1024" fill="url(#bg)"/>
-    <rect width="1024" height="1024" fill="url(#gl)"/>
+    <rect width="1024" height="1024" rx="230" fill="#F5F1E8"/>
 
-    <!-- Top-Left tile — landscape -->
-    <rect x="290" y="253" width="210" height="210" rx="26" fill="white" opacity="0.95"/>
-    <g clip-path="url(#t1)">
-      <rect x="290" y="253" width="210" height="142" fill="#D5E8D7"/>
-      <polygon points="290,395 345,320 390,350 430,300 500,395" fill="#6B9E72" opacity="0.45"/>
-      <circle cx="452" cy="298" r="20" fill="#F5EACD" opacity="0.65"/>
+    <path d="M256 666 C435 384, 691 384, 742 538"
+          stroke="url(#g)"
+          stroke-width="62"
+          fill="none"
+          stroke-linecap="round"/>
+
+    <g transform="translate(819, 486)">
+      <path d="M0 -31 L10 -10 L31 0 L10 10 L0 31 L-10 10 L-31 0 L-10 -10 Z"
+            fill="#16A34A"/>
     </g>
 
-    <!-- Top-Right tile — sky/portrait -->
-    <rect x="524" y="253" width="210" height="210" rx="26" fill="white" opacity="0.95"/>
-    <g clip-path="url(#t2)">
-      <rect x="524" y="253" width="210" height="142" fill="#CEDAE8"/>
-      <circle cx="629" cy="330" r="34" fill="#DCCFB8" opacity="0.45"/>
+    <g transform="translate(880, 435)" opacity="0.85">
+      <path d="M0 -20 L8 -8 L20 0 L8 8 L0 20 L-8 8 L-20 0 L-8 -8 Z"
+            fill="#16A34A"/>
     </g>
 
-    <!-- Bottom-Left tile — warm/urban -->
-    <rect x="290" y="487" width="210" height="210" rx="26" fill="white" opacity="0.95"/>
-    <g clip-path="url(#t3)">
-      <rect x="290" y="487" width="210" height="142" fill="#E8DDD2"/>
-      <rect x="318" y="525" width="48" height="62" rx="5" fill="#C8BAA6" opacity="0.4"/>
-      <rect x="380" y="512" width="42" height="75" rx="5" fill="#BAC2A6" opacity="0.35"/>
+    <g transform="translate(931, 399)" opacity="0.7">
+      <path d="M0 -14 L5 -5 L14 0 L5 5 L0 14 L-5 5 L-14 0 L-5 -5 Z"
+            fill="#16A34A"/>
     </g>
-
-    <!-- Bottom-Right tile — pink, rotated (being sorted) -->
-    <g transform="translate(629, 592) rotate(5)" filter="url(#lift)">
-      <rect x="-105" y="-105" width="210" height="210" rx="26" fill="white" opacity="0.97"/>
-      <g clip-path="url(#t4)">
-        <rect x="-105" y="-105" width="210" height="142" fill="#E8D2DC"/>
-        <circle cx="0" cy="-38" r="30" fill="#D4B8C4" opacity="0.4"/>
-      </g>
-    </g>
-
-    <!-- Zone markers at grid corners -->
-
-    <!-- Delete (top-left) — red -->
-    <circle cx="290" cy="253" r="30" fill="#D62828"/>
-    <g transform="translate(290, 253)">
-      <rect x="-11" y="-6" width="22" height="3.5" rx="1.5" fill="white" opacity="0.9"/>
-      <rect x="-8" y="0" width="16" height="13" rx="2.5" fill="none" stroke="white" stroke-width="2.2" opacity="0.9"/>
-      <line x1="0" y1="-12" x2="0" y2="-6" stroke="white" stroke-width="2.2" stroke-linecap="round" opacity="0.9"/>
-    </g>
-
-    <!-- Keep (top-right) — green -->
-    <circle cx="734" cy="253" r="30" fill="#2D6A4F"/>
-    <polyline points="722,253 730,263 748,245" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" transform="translate(0,0)"/>
-
-    <!-- Not Sure (bottom-left) — gray -->
-    <circle cx="290" cy="697" r="30" fill="#8D99AE"/>
-    <text x="290" y="707" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="white" opacity="0.9">?</text>
-
-    <!-- Favorite (bottom-right) — gold -->
-    <circle cx="734" cy="697" r="30" fill="#E09F3E"/>
-    <path d="M734,689 C730,683 722,685 722,691 C722,697 734,707 734,707 C734,707 746,697 746,691 C746,685 738,683 734,689Z" fill="white" opacity="0.9"/>
   </g>
 </svg>
